@@ -1,6 +1,6 @@
 import pygame
 from sys import exit
-
+import random
 
 
 
@@ -51,14 +51,22 @@ def opponent_limits():
 
 # Ball
 ball_rect = pygame.Rect(width/2 - 10, height /2 - 10, 20, 20)
+ball_speed_x = 0
+ball_speed_y = 0
+
+
 
 def ball_limits():
-    if ball_rect.x <= 0:
-        pygame.quit()
-    if ball_rect.x >= width:
-        pygame.quit() 
+    if ball_rect.x <= 0 or ball_rect.x >= width: exit()
+    if ball_rect.y == 0: x
+    if ball_rect.y == height: x
 
-
+def ball_init():
+    global ball_speed_x
+    start = random.randint(0, 1)
+    if start == 0: ball_speed_x += 5
+    if start == 1: ball_speed_x -= 5
+    
 
 
 
@@ -72,16 +80,18 @@ oscore = score_font.render(f"{opponent_score}", False, "White")
 
 
 
+ball_init()
 
 # Game loop
 while True:
     
+
+
     # Event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-
 
 
 
@@ -98,6 +108,7 @@ while True:
             if event.key == pygame.K_DOWN:
                 opponent_speed -= 7
 
+
         # Player Movement
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
@@ -112,8 +123,12 @@ while True:
 
     # Update
     screen.fill((0, 0, 0))
+
     player_rect.y += player_speed
     opponent_rect.y += opponent_speed
+
+    ball_rect.x += ball_speed_x
+    ball_rect.y += ball_speed_y
 
     # Control
     player_limits()
