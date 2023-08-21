@@ -55,30 +55,46 @@ ball_rect = pygame.Rect(width/2, height /2, 20, 20)
 ball_speed_x = 0
 ball_speed_y = 0
 
-
 def ball_movement():
     global ball_speed_x, ball_speed_y
-    print(ball_speed_x)
-    if ball_rect.colliderect(player_rect): ball_speed_x = ball_speed_x * -1
-    if ball_rect.colliderect(opponent_rect): ball_speed_x = ball_speed_x * -1
-
+    player_location = (player_rect.y + 70) - (ball_rect.y + 10)     # 0 -> 660
+    opponent_location = (opponent_rect.y + 70) - (ball_rect.y + 10)
+    print(player_rect.y, opponent_rect.y, player_location, opponent_location)
+    if ball_rect.colliderect(player_rect):
+        if player_location in range(-15, 16): ball_speed_y = 0
+        elif player_location < -15: 
+            ball_speed_y = 0
+            ball_speed_y += 10
+        elif player_location > 16: 
+            ball_speed_y = 0
+            ball_speed_y -= 10
+        ball_speed_x = ball_speed_x * -1
+    if ball_rect.colliderect(opponent_rect): 
+        if opponent_location in range(-15, 16): ball_speed_y = 0
+        elif opponent_location < -15: 
+            ball_speed_y = 0
+            ball_speed_y += 10
+        elif opponent_location > 16: 
+            ball_speed_y = 0
+            ball_speed_y -= 10
+        ball_speed_x = ball_speed_x * -1
     ball_rect.x += ball_speed_x
     ball_rect.y += ball_speed_y
 
 def ball_limits():
-    global opponent_score, player_score
+    global opponent_score, player_score, ball_speed_y
     if ball_rect.x <= -10: 
         opponent_score += 1
         ball_init()
-    if ball_rect.x >= width + 10: 
+    if ball_rect.x >= width + 10:
         player_score += 1
         ball_init()
     if ball_rect.y == 0: ball_speed_y = ball_speed_y * -1
     if ball_rect.y == height: ball_speed_y = ball_speed_y * -1
 
 def ball_init():
-    global ball_speed_x
-    ball_speed_x = 0
+    global ball_speed_x, ball_speed_y
+    ball_speed_x, ball_speed_y = 0, 0
     ball_rect.x = width / 2 - 10
     ball_rect.y = height / 2 - 10
     start = random.randint(0, 1)
@@ -100,8 +116,7 @@ score_font = pygame.font.Font("bit5x3.ttf", 80)
 ball_init()
 
 while True:
-    
-
+   
 
     # Event loop
     for event in pygame.event.get():
