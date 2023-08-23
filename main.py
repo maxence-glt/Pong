@@ -59,7 +59,6 @@ def ball_movement():
     global ball_speed_x, ball_speed_y
     player_location = (player_rect.y + 70) - (ball_rect.y + 10)     # 0 -> 660
     opponent_location = (opponent_rect.y + 70) - (ball_rect.y + 10)
-    print(player_rect.y, opponent_rect.y, player_location, opponent_location)
     if ball_rect.colliderect(player_rect):
         if player_location in range(-15, 16): ball_speed_y = 0
         elif player_location < -15: 
