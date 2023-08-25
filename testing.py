@@ -52,56 +52,47 @@ class Ball:
     
     def __init__(self):
         self.rect = pygame.Rect(width/2, height /2, 20, 20)
-        self.speed_x = 0
-        self.speed_y = 0
 
     def init(self):
         self.rect.x, self.rect.y = width / 2 - 10, height / 2 - 10
-        self.speed_x, self.speed_y = 0, 0
-        start = random.randint(0, 1)
-        if start == 0: self.speed_x -= 10
-        if start == 1: self.speed_x += 10
+        start, start_x, start_y = random.randint(-1, 0), random.randint(7, 9), random.randint(3, 6)
+        if start == 0: start += 1
+        self.speed_x = (20 * (start_x / 10)) * start
+        self.speed_y = (20 * (start_y / 10)) * start
+        print(start, start_x, start_y, self.speed_x, self.speed_y)
 
-    def movement(self):
-        self.rect.x += self.speed_x
-        self.rect.y += self.speed_y
-
-    def ball_limit(self):
+    def limit(self):
         if ball.rect.x <= -10: 
             self.opponent_score += 1
             ball.init()
         if ball.rect.x >= width + 10:
             self.player_score += 1
             ball.init()
-        if ball.rect.y == 0: self.speed_y = self.speed_y * -1
-        if ball.rect.y == height: self.speed_y = self.speed_y * -1
+        if ball.rect.y <= 0: self.speed_y = self.speed_y * -1
+        if ball.rect.y >= height: self.speed_y = self.speed_y * -1
 
     def collide(self):
-        player_location = (player.rect.y + 70) - (ball.rect.y + 10)     # 0 -> 660
-        opponent_location = (player.rect.y + 70) - (ball.rect.y + 10)
-
+        player_location = (player.rect.top) - (ball.rect.y + 10)     # 10 (top) -> -150 (bottom)
+        opponent_location = (opponent.rect.top) - (ball.rect.y + 10)
         if self.rect.colliderect(player.rect):
-            if player_location in range(-15, 16): self.speed_y = 0
-            elif player_location < -15: 
+            if player_location in range(-107, -52): self.speed_y = self.speed_y * -1
+            elif player_location < -107: 
                 self.speed_y = 0
                 self.speed_y += 10
-            elif player_location > 16: 
+            elif player_location >= -52: 
                 self.speed_y = 0
                 self.speed_y -= 10
             self.speed_x = self.speed_x * -1
 
-        if self.rect.colliderect(opponent.rect): 
-            if opponent_location in range(-15, 16): self.speed_y = 0
-            elif opponent_location < -15: 
-                ball_speed_y = 0
-                ball_speed_y += 10
-            elif opponent_location > 16: 
-                ball_speed_y = 0
-                ball_speed_y -= 10
+        if self.rect.colliderect(opponent.rect):
+            if opponent_location in range(-107, -52): self.speed_y = self.speed_y * -1
+            elif opponent_location < -107: 
+                self.speed_y = 0
+                self.speed_y += 10
+            elif opponent_location >= -52: 
+                self.speed_y = 0
+                self.speed_y -= 10
             self.speed_x = self.speed_x * -1
-
-        ball.rect.x += self.speed_x
-        ball.rect.y += self.speed_y
 
 
 
@@ -154,12 +145,13 @@ while True:
     player.rect.y += player.speed
     opponent.rect.y += opponent.speed
     ball.rect.x += ball.speed_x
+    ball.rect.y += ball.speed_y
 
 
     # Control
     player.limits()
     opponent.limits()
-    ball.ball_limit()
+    ball.limit()
     ball.collide()
 
     # Draw
