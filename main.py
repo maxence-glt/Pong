@@ -136,11 +136,12 @@ while True:
 
     # Event loop
     for event in pygame.event.get():
-        player.input()
-        opponent.input()
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        if game_active:
+            player.input()
+            opponent.input()    
         if game_active == False and event.type == pygame.KEYDOWN and event.key == pygame.K_1:
             ball.init()
             game_active = True
