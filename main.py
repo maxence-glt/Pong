@@ -1,6 +1,5 @@
-import pygame
+import pygame, random, math
 from sys import exit
-import random
 
 
 
@@ -12,171 +11,146 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Pong")
 
 
+# Paddles setup
+class Paddle:
+    speed = 0
 
 
+    def __init__(self, name, dist):
+        self.dist = dist
+        self.rect =  pygame.Rect(self.dist, (height / 2) - 41, 10, 82)
+        self.score = 0
 
-# Variables
-player_speed = 0
-opponent_speed = 0
-
-
-
-
-# Player setup
-racket_height = 140
-x, y = 70, 330
-player_speed = 0
-player_rect = pygame.Rect(30, (height / 2) - 70, 10, racket_height)
-
-def player_limits():
-    if player_rect.top <= 0:
-        player_rect.top = 0
-    elif player_rect.bottom >= height:
-        player_rect.bottom = height
+        if name == "player": 
+            self.up_K = pygame.K_w
+            self.down_K = pygame.K_s
+        elif name == "opponent":
+            self.up_K = pygame.K_UP
+            self.down_K = pygame.K_DOWN    
 
 
+    def limits(self):
+        if self.rect.top <= 0: self.rect.top = 0
+        elif self.rect.bottom >= height: self.rect.bottom = height
+    
 
-
-
-# Opponent setup
-opponent_rect = pygame.Rect(width - 30, (height / 2) - 70, 10, racket_height)
-
-def opponent_limits():
-    if opponent_rect.top <= 0:
-        opponent_rect.top = 0
-    elif opponent_rect.bottom >= height:
-        opponent_rect.bottom = height
-
-
-
-
-# Ball
-ball_rect = pygame.Rect(width/2, height /2, 20, 20)
-ball_speed_x = 0
-ball_speed_y = 0
-
-def ball_movement():
-    global ball_speed_x, ball_speed_y
-    player_location = (player_rect.y + 70) - (ball_rect.y + 10)     # 0 -> 660
-    opponent_location = (opponent_rect.y + 70) - (ball_rect.y + 10)
-    if ball_rect.colliderect(player_rect):
-        if player_location in range(-15, 16): ball_speed_y = 0
-        elif player_location < -15: 
-            ball_speed_y = 0
-            ball_speed_y += 10
-        elif player_location > 16: 
-            ball_speed_y = 0
-            ball_speed_y -= 10
-        ball_speed_x = ball_speed_x * -1
-    if ball_rect.colliderect(opponent_rect): 
-        if opponent_location in range(-15, 16): ball_speed_y = 0
-        elif opponent_location < -15: 
-            ball_speed_y = 0
-            ball_speed_y += 10
-        elif opponent_location > 16: 
-            ball_speed_y = 0
-            ball_speed_y -= 10
-        ball_speed_x = ball_speed_x * -1
-    ball_rect.x += ball_speed_x
-    ball_rect.y += ball_speed_y
-
-def ball_limits():
-    global opponent_score, player_score, ball_speed_y
-    if ball_rect.x <= -10: 
-        opponent_score += 1
-        ball_init()
-    if ball_rect.x >= width + 10:
-        player_score += 1
-        ball_init()
-    if ball_rect.y == 0: ball_speed_y = ball_speed_y * -1
-    if ball_rect.y == height: ball_speed_y = ball_speed_y * -1
-
-def ball_init():
-    global ball_speed_x, ball_speed_y
-    ball_speed_x, ball_speed_y = 0, 0
-    ball_rect.x = width / 2 - 10
-    ball_rect.y = height / 2 - 10
-    start = random.randint(0, 1)
-    if start == 0: ball_speed_x -= 15
-    if start == 1: ball_speed_x += 15
+    def input(self):
+        if event.type == pygame.KEYDOWN:
+            if event.key == self.up_K: self.speed -= 11
+            if event.key == self.down_K: self.speed += 11
+        if event.type == pygame.KEYUP:
+            if event.key == self.up_K: self.speed += 11
+            if event.key == self.down_K: self.speed -= 11
     
 
 
 
-# Score
-player_score = 0
-opponent_score = 0
+
+class Ball:
+    
+
+
+    def __init__(self):
+        self.rect = pygame.Rect(width/2, height /2, 20, 20)
+
+
+
+    def init(self):
+        self.rect.x, self.rect.y = width / 2 - 10, height / 2 - 10
+        start, start_x, start_y = random.randint(-1, 0), random.randint(7, 9), random.randint(1, 4)
+        if start == 0: start += 1
+        self.speed_x = (20 * (start_x / 10)) * start
+        self.speed_y = (10 * (start_y / 10)) * start
+
+
+
+    def limit(self):
+        if ball.rect.x <= -10: 
+            opponent.score += 1
+            ball.init()
+        if ball.rect.x >= width + 10:
+            player.score += 1
+            ball.init()
+        if ball.rect.y <= 0: self.speed_y = self.speed_y * -1
+        if ball.rect.y >= height: self.speed_y = self.speed_y * -1
+
+        
+
+    def collide(self):
+        player_location = (((abs (((player.rect.top) - (ball.rect.y + 10)) - 9)) * math.pi) / 100)  # 0 (top) -> 50 -> 100 (bottom) ** OLD
+        opponent_location = (((abs (((opponent.rect.top) - (ball.rect.y + 10)) - 9)) * math.pi) / 100)   # 0 (top) -> 1.57079 -> 3.14159 (bottom) ** NEW
+
+        if self.rect.colliderect(player.rect):
+            self.speed_y = 0
+            self.speed_x = self.speed_x * -1
+            self.speed_y += (round (math.cos(player_location) * 6, 4)) *-1
+
+        if self.rect.colliderect(opponent.rect):
+            self.speed_y = 0
+            self.speed_x = self.speed_x * -1
+            self.speed_y += (round (math.cos(opponent_location) * 6, 4)) *-1
+        # print(self.speed_y)
+
+
+
+player = Paddle("player", 10)
+opponent = Paddle("opponent", (width - 10))
+
+ball = Ball()
+
 score_font = pygame.font.Font("bit5x3.ttf", 80)
 
 
 
 
+
 # Game loop
-ball_init()
+ball.init()
+
+
+
+
 
 while True:
-   
+    screen.fill((0, 0, 0))
+
+    
+
+
 
     # Event loop
     for event in pygame.event.get():
-        # X out of the game
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        player.input()
+        opponent.input()
 
 
 
 
-        # Opponent Movement
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                opponent_speed -= 7
-            if event.key == pygame.K_DOWN:
-                opponent_speed += 7
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_UP:
-                opponent_speed += 7
-            if event.key == pygame.K_DOWN:
-                opponent_speed -= 7
 
 
-        # Player Movement
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w:
-                player_speed -= 7
-            if event.key == pygame.K_s:
-                player_speed += 7
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_w:
-                player_speed += 7
-            if event.key == pygame.K_s:
-                player_speed -= 7
-
-    # Update
-    screen.fill((0, 0, 0))
-
-    ball_movement()
-
-    player_rect.y += player_speed
-    opponent_rect.y += opponent_speed
-
-
+    player.rect.y += player.speed
+    opponent.rect.y += opponent.speed
+    ball.rect.x += ball.speed_x
+    ball.rect.y += ball.speed_y
+    
 
     # Control
-    player_limits()
-    opponent_limits()
-    ball_limits()
-
+    player.limits()
+    opponent.limits()
+    ball.limit()
+    ball.collide()
 
     # Draw
-    pygame.draw.rect(screen, "White", player_rect)
-    pygame.draw.rect(screen, "White", opponent_rect)
-    pygame.draw.ellipse(screen, "White", ball_rect)
+    pygame.draw.rect(screen, "White", player.rect)
+    pygame.draw.rect(screen, "White", opponent.rect)
+    pygame.draw.ellipse(screen, "White", ball.rect)
     pygame.draw.aaline(screen, "White", (width / 2, 0),(width / 2, height))
 
-    screen.blit(score_font.render(f"{player_score}", False, "White"), ((width / 2) - 120, 50))
-    screen.blit(score_font.render(f"{opponent_score}", False, "White"), ((width / 2) + 100, 50))
-
+    screen.blit(score_font.render(f"{player.score}", False, "White"), ((width / 2) - 120, 50))
+    screen.blit(score_font.render(f"{opponent.score}", False, "White"), ((width / 2) + 100, 50))
 
 
 
