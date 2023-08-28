@@ -29,11 +29,12 @@ class Paddle:
         self.dist = dist
         self.rect =  pygame.Rect(self.dist, (height / 2) - 41, 10, 82)
         self.score = 0
+        self.name = name
 
-        if name == "player": 
+        if name == "Player": 
             self.up_K = pygame.K_w
             self.down_K = pygame.K_s
-        elif name == "opponent":
+        elif name == "Opponent":
             self.up_K = pygame.K_UP
             self.down_K = pygame.K_DOWN    
 
@@ -90,32 +91,35 @@ class Ball:
 
 
 
-def menu(side=None, score=0):
+def menu(score, side):
     global game_active
     screen.fill((0,0,0))
     screen.blit(title_font.render("Pong", False, "White"), (width / 2 - 80, 40))
     screen.blit(menu_font.render("Press 1 to play with 2 people", False, "White"), (20, (height / 5)))
     screen.blit(menu_font.render("Press 2 to play against computer", False, "White"), (20, height / 3))
     game_active = False
-    if score == 10: screen.blit(menu_font.render(f'{side} reached {score} points and won', False, ("White")), (20, height - 400))
+    if side == None and total > 0:      # PyGame has a bug where player.name is passed in as None, thus I needed to reassign None, and make sure it wont popup once you start playing :/
+        screen.blit(menu_font.render(f'Player reached {player.score} points and won', False, ("White")), (20, height - 400))
+    if score == 0: pass
+    else: screen.blit(menu_font.render(f'Opponent reached {opponent.score} points and won', False, ("White")), (20, height - 400))
 
 
 
 
-player = Paddle("player", 10)
-opponent = Paddle("opponent", (width - 10))
+player = Paddle("Player", 10)
+opponent = Paddle("Opponent", (width - 10))
 ball = Ball()
 title_font = pygame.font.Font("Pixeltype.ttf", 120)
 menu_font = pygame.font.Font("bit5x3.ttf", 60)
 score_font = pygame.font.Font("bit5x3.ttf", 80)
-
+total = 0
 
 
 
 
 while True:
     screen.fill((0, 0, 0))
-
+    print(player.score, opponent.score)
     # Event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -123,12 +127,15 @@ while True:
             exit()
         if game_active:
             player.input()
-            opponent.input()    
+            opponent.input()   
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_g:
+                game_active = False
+                total += 1
         if game_active == False and event.type == pygame.KEYDOWN and event.key == pygame.K_1:
             ball.init()
             player.score, opponent.score = 0, 0
-            player = Paddle("player", 10)
-            opponent = Paddle("opponent", (width - 10))
+            player = Paddle("Player", 10)
+            opponent = Paddle("Opponent", (width - 10))
             game_active = True
         
         
@@ -155,23 +162,26 @@ while True:
         screen.blit(score_font.render(f"{player.score}", False, "White"), ((width / 2) - 120, 50))
         screen.blit(score_font.render(f"{opponent.score}", False, "White"), ((width / 2) + 100, 50))
 
-        if player.score == 10: 
+        if player.score == 10 or opponent.score == 10: 
             game_active = False
-            menu("Player", 10)
-        if opponent.score == 10: 
-            game_active = False
-            menu("Opponent", 10)
 
 
+    
 
     else:
-        if player.score == 10: 
-            game_active = False
-            menu("Player", 10)
-        if opponent.score == 10: 
-            game_active = False
-            menu("Opponent", 10)
-        else: menu()
+        if player.score > opponent.score: 
+            screen.fill((0,0,0))
+            screen.blit(title_font.render("Pong", False, "White"), (width / 2 - 80, 40))
+            screen.blit(menu_font.render("Press 1 to play with 2 people", False, "White"), (20, (height / 5)))
+            screen.blit(menu_font.render("Press 2 to play against computer", False, "White"), (20, height / 3))
+            menu(player.score, player.name)
+        if opponent.score > player.score: 
+            screen.fill((0,0,0))
+            screen.blit(title_font.render("Pong", False, "White"), (width / 2 - 80, 40))
+            screen.blit(menu_font.render("Press 1 to play with 2 people", False, "White"), (20, (height / 5)))
+            screen.blit(menu_font.render("Press 2 to play against computer", False, "White"), (20, height / 3))
+            menu(opponent.score, opponent.name)
+        else: menu(0, None)
 
 
     pygame.display.update()
