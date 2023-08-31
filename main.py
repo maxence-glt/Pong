@@ -6,7 +6,7 @@ from sys import exit
 
 
 
-#TODO: Make main menu track score correctly after either player wins
+#TODO: Make ball slower on startup
 #TODO: Work on calling class methods instead of calling class attributes and updating them in While loop (more abstraction)
 #TODO: Work on computer player
 
