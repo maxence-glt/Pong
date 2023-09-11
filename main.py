@@ -11,7 +11,9 @@ width, height = 1280, 800
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Pong")
 pygame.display.set_icon(pygame.image.load("static/logo.png"))
-game_active = False
+title_font = pygame.font.Font("static/Pixeltype.ttf", 120)
+menu_font = pygame.font.Font("static/bit5x3.ttf", 60)
+score_font = pygame.font.Font("static/bit5x3.ttf", 80)
 
 
 # Paddles setup
@@ -44,7 +46,7 @@ class Paddle:
             if event.key == self.up_K: self.speed += 11
             if event.key == self.down_K: self.speed -= 11
     
-
+# Ball class
 class Ball:
     speed = 13
     
@@ -88,6 +90,7 @@ class Ball:
             self.speed_x = (abs (self.speed_x_original * random.uniform(0.8, 1.3))) * -1
             self.speed_y += (round (math.cos(opponent_location) * 10, 4)) *-1
 
+# Computer class
 class Computer(Paddle):
     
     def speed(self):
@@ -100,10 +103,6 @@ class Computer(Paddle):
 
             else:
                 opponent.rect.y += 0
-
-
-
-
 
 
 def menu(score, side):
@@ -120,14 +119,10 @@ def menu(score, side):
     else: screen.blit(menu_font.render(f'Opponent reached {opponent.score} points and won', False, ("White")), (20, height - 400))
 
 
-
-
 player = Paddle("Player", 10)
 opponent = Paddle("Opponent", (width - 10))
 ball = Ball()
-title_font = pygame.font.Font("static/Pixeltype.ttf", 120)
-menu_font = pygame.font.Font("static/bit5x3.ttf", 60)
-score_font = pygame.font.Font("static/bit5x3.ttf", 80)
+game_active = False
 on_off = 0
 comp = False
 
@@ -135,6 +130,7 @@ comp = False
 
 while True:
     screen.fill((0, 0, 0))
+    
     # Event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
