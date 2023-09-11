@@ -96,13 +96,21 @@ class Computer(Paddle):
     def speed(self):
         if ball.rect.x > width * (1/3):
             if ball.rect.y < opponent.rect.y + 30:
-                opponent.rect.y += -11
+                opponent.rect.y += -8
 
             if ball.rect.y > opponent.rect.y + 50:
-                opponent.rect.y += 11
+                opponent.rect.y += 8
 
             else:
                 opponent.rect.y += 0
+        else:
+            if height / 2 > opponent.rect.y + 30:
+                opponent.rect.y += 8
+            if height / 2 < opponent.rect.y + 50:
+                opponent.rect.y += -8
+            else:
+                opponent.rect.y += 0
+
 
 
 def menu(score, side):
@@ -190,16 +198,8 @@ while True:
 
     else:
         if player.score > opponent.score: 
-            screen.fill((0,0,0))
-            screen.blit(title_font.render("Pong", False, "White"), (width / 2 - 80, 40))
-            screen.blit(menu_font.render("Press 1 to play with 2 people", False, "White"), (20, (height / 5)))
-            screen.blit(menu_font.render("Press 2 to play against computer", False, "White"), (20, height / 3))
             menu(player.score, player.name)
         if opponent.score > player.score: 
-            screen.fill((0,0,0))
-            screen.blit(title_font.render("Pong", False, "White"), (width / 2 - 80, 40))
-            screen.blit(menu_font.render("Press 1 to play with 2 people", False, "White"), (20, (height / 5)))
-            screen.blit(menu_font.render("Press 2 to play against computer", False, "White"), (20, height / 3))
             menu(opponent.score, opponent.name)
         else: menu(0, None)
 
