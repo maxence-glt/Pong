@@ -1,12 +1,8 @@
 import pygame
 import random
-import math # import cProfile, re
+import math
 
 from sys import exit
-
-
-
-
 
 
 # Window initialization
@@ -14,7 +10,7 @@ pygame.init()
 width, height = 1280, 800
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Pong")
-pygame.display.set_icon(pygame.image.load("logo.png"))
+pygame.display.set_icon(pygame.image.load("static/logo.png"))
 game_active = False
 
 
@@ -43,6 +39,7 @@ class Paddle:
         if event.type == pygame.KEYDOWN:
             if event.key == self.up_K: self.speed -= 11
             if event.key == self.down_K: self.speed += 11
+
         if event.type == pygame.KEYUP:
             if event.key == self.up_K: self.speed += 11
             if event.key == self.down_K: self.speed -= 11
@@ -50,6 +47,7 @@ class Paddle:
 
 class Ball:
     speed = 13
+    
     def __init__(self):
         self.rect = pygame.Rect(width/2, height /2, 20, 20)
 
@@ -71,8 +69,14 @@ class Ball:
         if ball.rect.y <= 0 or ball.rect.y >= height: self.speed_y = self.speed_y * -1
 
     def collide(self):
-        player_location = (((abs ((player.rect.top - (ball.rect.y + 10)) - 9)) * math.pi) / 100)  # 0 (top) -> 50 -> 100 (bottom) ** OLD
-        opponent_location = (((abs ((opponent.rect.top - (ball.rect.y + 10)) - 9)) * math.pi) / 100)   # 0 (top) -> 1.57079 -> 3.14159 (bottom) ** NEW
+        player_location = (((abs ((player.rect.top 
+                                   - (ball.rect.y + 10)) - 9)) 
+                                   * math.pi) 
+                                   / 100)  # 0 (top) -> 50 -> 100 (bottom) ** OLD
+        opponent_location = (((abs ((opponent.rect.top 
+                                     - (ball.rect.y + 10)) - 9)) 
+                                     * math.pi) 
+                                     / 100)   # 0 (top) -> 1.57079 -> 3.14159 (bottom) ** NEW
 
         if self.rect.colliderect(player.rect):
             self.speed_y = 0
@@ -121,9 +125,9 @@ def menu(score, side):
 player = Paddle("Player", 10)
 opponent = Paddle("Opponent", (width - 10))
 ball = Ball()
-title_font = pygame.font.Font("Pixeltype.ttf", 120)
-menu_font = pygame.font.Font("bit5x3.ttf", 60)
-score_font = pygame.font.Font("bit5x3.ttf", 80)
+title_font = pygame.font.Font("static/Pixeltype.ttf", 120)
+menu_font = pygame.font.Font("static/bit5x3.ttf", 60)
+score_font = pygame.font.Font("static/bit5x3.ttf", 80)
 on_off = 0
 comp = False
 
