@@ -6,9 +6,6 @@ from sys import exit
 
 
 
-#TODO: Make ball slower on startup
-#TODO: Work on calling class methods instead of calling class attributes and updating them in While loop (more abstraction)
-#TODO: Work on computer player
 
 
 
@@ -27,7 +24,7 @@ class Paddle:
 
     def __init__(self, name, dist):
         self.dist = dist
-        self.rect =  pygame.Rect(self.dist, (height / 2) - 41, 10, 82)
+        self.rect = pygame.Rect(self.dist, (height / 2) - 41, 10, 82)
         self.score = 0
         self.name = name
 
@@ -52,7 +49,7 @@ class Paddle:
     
 
 class Ball:
-
+    speed = 13
     def __init__(self):
         self.rect = pygame.Rect(width/2, height /2, 20, 20)
 
@@ -60,9 +57,9 @@ class Ball:
         self.rect.x, self.rect.y = width / 2 - 10, height / 2 - 10
         start, start_x, start_y = random.randint(-1, 0), random.randint(7, 9), random.randint(1, 4)
         if start == 0: start += 1
-        self.speed_x = (25 * (start_x / 10)) * start
-        self.speed_y = (10 * (start_y / 10)) * start
-        self.speed_x_original = self.speed_x
+        self.speed_x = Ball.speed * start
+        self.speed_y = (5 * (start_y / 10)) * start
+        self.speed_x_original = (25 * (start_x / 10)) * start
 
     def limit(self):
         if ball.rect.x <= -15: 
@@ -87,6 +84,20 @@ class Ball:
             self.speed_x = (abs (self.speed_x_original * random.uniform(0.8, 1.3))) * -1
             self.speed_y += (round (math.cos(opponent_location) * 10, 4)) *-1
 
+class Computer(Paddle):
+    
+    def speed(self):
+        if ball.rect.x > width * (1/3):
+            if ball.rect.y < opponent.rect.y + 30:
+                opponent.rect.y += -11
+
+            if ball.rect.y > opponent.rect.y + 50:
+                opponent.rect.y += 11
+
+            else:
+                opponent.rect.y += 0
+
+
 
 
 
@@ -98,7 +109,8 @@ def menu(score, side):
     screen.blit(menu_font.render("Press 1 to play with 2 people", False, "White"), (20, (height / 5)))
     screen.blit(menu_font.render("Press 2 to play against computer", False, "White"), (20, height / 3))
     game_active = False
-    if side == None and total > 0:      # PyGame has a bug where player.name is passed in as None, thus I needed to reassign None, and make sure it wont popup once you start playing :/
+    if side == None and on_off > 0:     # PyGame has a bug where player.name is passed in as None, thus I needed to reassign None, 
+                                        # and make sure it wont popup once you start playing :/
         screen.blit(menu_font.render(f'Player reached {player.score} points and won', False, ("White")), (20, height - 400))
     if score == 0: pass
     else: screen.blit(menu_font.render(f'Opponent reached {opponent.score} points and won', False, ("White")), (20, height - 400))
@@ -112,14 +124,13 @@ ball = Ball()
 title_font = pygame.font.Font("Pixeltype.ttf", 120)
 menu_font = pygame.font.Font("bit5x3.ttf", 60)
 score_font = pygame.font.Font("bit5x3.ttf", 80)
-total = 0
-
+on_off = 0
+comp = False
 
 
 
 while True:
     screen.fill((0, 0, 0))
-    print(player.score, opponent.score)
     # Event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -130,28 +141,37 @@ while True:
             opponent.input()   
             if event.type == pygame.KEYDOWN and event.key == pygame.K_g:
                 game_active = False
-                total += 1
-        if game_active == False and event.type == pygame.KEYDOWN and event.key == pygame.K_1:
-            ball.init()
-            player.score, opponent.score = 0, 0
-            player = Paddle("Player", 10)
-            opponent = Paddle("Opponent", (width - 10))
-            game_active = True
+                on_off += 1
+
+        if game_active == False:
+
+            if event.type == pygame.KEYDOWN and event.key != pygame.K_g:
+                ball.init()
+                player.score, opponent.score = 0, 0
+                player = Paddle("Player", 10)
+                opponent = Paddle("Opponent", (width - 10))
+                game_active = True
+
+                if event.key == pygame.K_2:
+                    computer = Computer("Computer", (width-10))
+                    comp = True
         
         
 
     if game_active:
         player.rect.y += player.speed
-        opponent.rect.y += opponent.speed
         ball.rect.x += ball.speed_x
         ball.rect.y += ball.speed_y
-
+        if comp:
+            computer.speed()
+        else: opponent.rect.y += opponent.speed
 
         # Control
         player.limits()
         opponent.limits()
         ball.limit()
         ball.collide()
+
 
         # Draw
         pygame.draw.rect(screen, "White", player.rect)
