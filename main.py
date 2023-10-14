@@ -16,10 +16,11 @@ menu_font = pygame.font.Font("static/bit5x3.ttf", 60)
 score_font = pygame.font.Font("static/bit5x3.ttf", 80)
 
 
-# Paddles setup
+# Paddles setup class
 class Paddle:
     speed = 0
 
+    # initializes a paddle
     def __init__(self, name, dist):
         self.dist = dist
         self.rect = pygame.Rect(self.dist, (height / 2) - 41, 10, 82)
@@ -33,10 +34,12 @@ class Paddle:
             self.up_K = pygame.K_UP
             self.down_K = pygame.K_DOWN    
 
+    # defines the limits of the screen the paddles can move to
     def limits(self):
         if self.rect.top <= 0: self.rect.top = 0
         elif self.rect.bottom >= height: self.rect.bottom = height
     
+    # the player input section
     def input(self):
         if event.type == pygame.KEYDOWN:
             if event.key == self.up_K: self.speed -= 11
@@ -46,21 +49,28 @@ class Paddle:
             if event.key == self.up_K: self.speed += 11
             if event.key == self.down_K: self.speed -= 11
     
-# Ball class
+
+# The Pong ball class
 class Ball:
     speed = 13
     
+    # initializes the ball, setting it to the exact middle of the screen
     def __init__(self):
-        self.rect = pygame.Rect(width/2, height /2, 20, 20)
+        self.rect = pygame.Rect(width/2 - 10, height/2 - 10, 20, 20)
 
+    # this resets the ball to the middle of the screen after moving around
     def init(self):
         self.rect.x, self.rect.y = width / 2 - 10, height / 2 - 10
+        
+        # this randomizes the direction and speed of the ball when initialized
         start, start_x, start_y = random.randint(-1, 0), random.randint(7, 9), random.randint(1, 4)
         if start == 0: start += 1
+
         self.speed_x = Ball.speed * start
         self.speed_y = (5 * (start_y / 10)) * start
         self.speed_x_original = (25 * (start_x / 10)) * start
 
+    # the limits the ball can go to, and the behavior it exhibts when coliding with said limits
     def limit(self):
         if ball.rect.x <= -15: 
             opponent.score += 1
@@ -70,6 +80,9 @@ class Ball:
             ball.init()
         if ball.rect.y <= 0 or ball.rect.y >= height: self.speed_y = self.speed_y * -1
 
+    # the equation for the angle of incidence once the ball collides with a paddle
+    # I first get the balls location by subtracting the paddle and ball's y locations
+    # I convert the location to a 1-100 scale and multiply by pi, divide by 100 and take the cosine
     def collide(self):
         player_location = (((abs ((player.rect.top 
                                    - (ball.rect.y + 10)) - 9)) 
@@ -90,9 +103,11 @@ class Ball:
             self.speed_x = (abs (self.speed_x_original * random.uniform(0.8, 1.3))) * -1
             self.speed_y += (round (math.cos(opponent_location) * 10, 4)) *-1
 
+
 # Computer class
 class Computer(Paddle):
     
+    # Simple AI that tracks ball at an interval, as well as moves paddle back to middle once ball goes past 2/3 mark
     def speed(self):
         if ball.rect.x > width * (1/3):
             if ball.rect.y < opponent.rect.y + 30:
@@ -112,7 +127,7 @@ class Computer(Paddle):
                 opponent.rect.y += 0
 
 
-
+# main menu function that shows the winners points score (if no one played yet, it doesn't show the scores)
 def menu(score, side):
     global game_active
     screen.fill((0,0,0))
@@ -127,19 +142,21 @@ def menu(score, side):
     else: screen.blit(menu_font.render(f'Opponent reached {opponent.score} points and won', False, ("White")), (20, height - 400))
 
 
+# creating the classes
 player = Paddle("Player", 10)
 opponent = Paddle("Opponent", (width - 10))
 ball = Ball()
+
+# sets everything to off so the player can choose what they want in menu
 game_active = False
 on_off = 0
 comp = False
 
 
-
 while True:
     screen.fill((0, 0, 0))
     
-    # Event loop
+    # event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -163,8 +180,7 @@ while True:
                 if event.key == pygame.K_2:
                     computer = Computer("Computer", (width-10))
                     comp = True
-        
-        
+
 
     if game_active:
         player.rect.y += player.speed
@@ -174,14 +190,13 @@ while True:
             computer.speed()
         else: opponent.rect.y += opponent.speed
 
-        # Control
+        # keeps checking that the player and the ball don't go out of bounds
         player.limits()
         opponent.limits()
         ball.limit()
         ball.collide()
 
-
-        # Draw
+        # draws everything on screen
         pygame.draw.rect(screen, "White", player.rect)
         pygame.draw.rect(screen, "White", opponent.rect)
         pygame.draw.ellipse(screen, "White", ball.rect)
@@ -193,8 +208,6 @@ while True:
         if player.score == 10 or opponent.score == 10: 
             game_active = False
 
-
-    
 
     else:
         if player.score > opponent.score: 
