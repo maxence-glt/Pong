@@ -1,5 +1,6 @@
 # Pong
 My clone of the Atari's classic pong game, made entirely in Python.
+A video displaying the Pong will be here soon.
 
 ## How its made
 **Tech used** Python and Pygame
